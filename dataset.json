@@ -1,11 +1,50 @@
 [
   {
-    "task": "Write a Python function that takes an AWS S3 bucket name and returns True if it follows AWS naming conventions (lowercase, hyphens allowed, 3-63 characters), False otherwise."
+    "prompt_inputs": {
+      "height": "178 cm",
+      "weight": "68 kg",
+      "goal": "endurance performance for marathon training",
+      "restrictions": "none"
+    },
+    "solution_criteria": [
+      "Meal plan contains 3000-3500 calories distributed across breakfast, lunch, dinner, and 2-3 snacks",
+      "Includes carbohydrate-rich foods timed before/after training (e.g., oats, rice, pasta, fruits)",
+      "Provides adequate protein (1.2-1.6g per kg body weight) for recovery",
+      "Presented as a compact, single-day plan with specific meal times and portions"
+    ],
+    "task_description": "write a compact, consice 1 day meal plan for a single athlete",
+    "scenario": "Testing with a high-intensity endurance athlete (marathon runner) who requires elevated calorie intake and specific carbohydrate timing around training sessions"
   },
   {
-    "task": "Create a JSON object representing an AWS IAM policy that allows read-only access to a specific S3 bucket named 'my-data-bucket'."
+    "prompt_inputs": {
+      "height": "178 cm",
+      "weight": "82 kg",
+      "goal": "muscle gain",
+      "restrictions": "vegetarian"
+    },
+    "solution_criteria": [
+      "Meal plan covers one full day with 4-5 meals/snacks",
+      "All meals are vegetarian with adequate protein alternatives (legumes, tofu, tempeh, dairy, nuts, seeds)",
+      "Protein intake supports strength athlete needs (approximately 1.6-2.2g per kg body weight)",
+      "Plan is compact and concise (brief descriptions, not lengthy explanations)"
+    ],
+    "task_description": "write a compact, consice 1 day meal plan for a single athlete",
+    "scenario": "Testing with a strength/power athlete (weightlifter) with dietary restrictions (vegetarian) to ensure adequate protein alternatives are included throughout the day"
   },
   {
-    "task": "Write a regular expression that matches valid AWS EC2 instance IDs (format: i- followed by 17 hexadecimal characters)."
+    "prompt_inputs": {
+      "height": "178 cm",
+      "weight": "75 kg",
+      "goal": "caloric maintenance with anti-inflammatory focus during injury recovery",
+      "restrictions": "none"
+    },
+    "solution_criteria": [
+      "Meal plan spans exactly one full day with 3-4 meals/snacks",
+      "Includes anti-inflammatory foods (fatty fish, berries, leafy greens, turmeric, etc.)",
+      "Maintains appropriate caloric intake for 75kg swimmer (~2400-2600 calories)",
+      "Addresses hydration requirements with water/electrolyte guidance"
+    ],
+    "task_description": "write a compact, consice 1 day meal plan for a single athlete",
+    "scenario": "Testing with a sport-specific athlete (swimmer) recovering from injury with caloric maintenance needs and anti-inflammatory food focus while balancing hydration requirements"
   }
 ]

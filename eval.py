@@ -1,11 +1,14 @@
-from typing import final
+import ast
 import json
+import re
+
+from anthropic import Anthropic
 from anthropic.resources import messages
 from dotenv import load_dotenv
 from statistics import mean
-load_dotenv()
+from typing import final
 
-from anthropic import Anthropic
+load_dotenv()
 
 client = Anthropic()
 #model = "claude-sonnet-4-6"
@@ -13,6 +16,15 @@ model = "claude-haiku-4-5"
 messages = []
 
 temperature = 1.0
+
+def add_user_message(messages, text):
+    user_message = {"role": "user", "content": text}
+    messages.append(user_message)
+
+def add_assistant_message(messages, text):
+    assistant_message = {"role": "assistant", "content": text}
+    messages.append(assistant_message)
+
 def chat(messages, system=None, temperature=1.0, stop_sequences=[]):
     params = {
         "model": model,
@@ -28,32 +40,50 @@ def chat(messages, system=None, temperature=1.0, stop_sequences=[]):
     message = client.messages.create(**params)
     return message.content[0].text
 
-def add_user_message(messages, text):
-    user_message = {"role": "user", "content": text}
-    messages.append(user_message)
 
-def add_assistant_message(messages, text):
-    assistant_message = {"role": "assistant", "content": text}
-    messages.append(assistant_message)
+def validate_json(text):
+    try:
+        json.loads(text.strip())
+        return 10
+    except json.JSONDecodeError:
+        return 0
 
-params = {
-    "model": model,
-    "max_tokens": 1000,
-    "messages": messages,
-    "temperature": temperature,
-    "stream": True
-}
+def validate_python(text):
+    try:
+        ast.parse(text.strip())
+        return 10
+    except SyntaxError:
+        return 0
+
+def validate_regex(text):
+    try:
+        re.compile(text.strip())
+        return 10
+    except re.error:
+        return 0
+    
+def grade_by_code(response, test_case):
+    if test_case["format"] == "json":
+        return validate_json(response)
+    elif test_case["format"] == "python":
+        return validate_python(response)
+    else:
+        return validate_regex(response)
 
 def run_prompt(test_case):
     prompt = f"""
 Please solve the following task:
 
 {test_case["task"]}
+
+* Response only with Python, JOSN, or a plain Regex
+* Do not add any comments or commentary or explanations
 """
 
     messages = []
     add_user_message(messages, prompt)
-    output = chat(messages)
+    add_assistant_message(messages, "```code")
+    output = chat(messages, stop_sequences=["```"])
     return output
 
 def grade_by_model(test_case, output):
@@ -70,6 +100,11 @@ Solution to Evaluate:
 <solution>
 {output}
 </solution>
+
+Criteria you should use the evaluate:
+<criteria>
+{test_case["solution_criteria"]}
+</criteria>
 
 Output Format
 Provide your evaluation as a structured JSON object with the following fields, in this specific order:
@@ -101,8 +136,11 @@ def run_test_case(test_case):
     output = run_prompt(test_case)
 
     model_grade = grade_by_model(test_case, output)
-    score = model_grade["score"]
+    model_score = model_grade["score"]
     reasoning = model_grade["reasoning"]
+
+    code_score = grade_by_code(output, test_case)
+    score = (model_score + code_score) / 2.0
 
     return {
         "output": output,
@@ -115,10 +153,14 @@ def run_eval(dataset):
     """
         dataset = [
             {
-                "task": "task description"
+                "task": "task description",
+                "format": "json",
+                "solution_criteria": "Must include AWSTemplateFormatVersion, Resources section with AWS::S3::Bucket, VersioningConfiguration set to Enabled, and PublicAccessBlockConfiguration with all block settings set to true"
             },
             {
-                "task": "task description"
+                "task": "task description",
+                "format": "json",
+                "solution_criteria": "Must include AWSTemplateFormatVersion, Resources section with AWS::S3::Bucket, VersioningConfiguration set to Enabled, and PublicAccessBlockConfiguration with all block settings set to true"
             }
         ]
         dataset is a list of testcases
@@ -137,3 +179,5 @@ with open("dataset.json", "r") as f:
     dataset = json.load(f)
 
 results = run_eval(dataset)
+
+print(json.dumps(results, indent=2))

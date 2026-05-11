@@ -1,7 +1,11 @@
-from typing import final
+# Imports
 import json
-from anthropic.resources import messages
+import concurrent.futures
+import re
+from textwrap import dedent
+from statistics import mean
 from dotenv import load_dotenv
+from anthropic import Anthropic
 load_dotenv()
 
 from anthropic import Anthropic
@@ -19,6 +23,7 @@ def chat(messages, system=None, temperature=1.0, stop_sequences=[]):
         "messages": messages,
         "temperature": temperature
     }  
+
     if system:
         params["system"] = system
     if stop_sequences: 
@@ -35,13 +40,6 @@ def add_assistant_message(messages, text):
     assistant_message = {"role": "assistant", "content": text}
     messages.append(assistant_message)
 
-params = {
-    "model": model,
-    "max_tokens": 1000,
-    "messages": messages,
-    "temperature": temperature,
-    "stream": True
-}
 
 def generate_dataset():
     prompt ="""
@@ -54,6 +52,8 @@ Example output:
 [
     {
         "task": "Descripton of task",
+        "format": "json" or "python" or "regex",
+        "solution_criteria": "Must include runtime, memory size, timeout and basic structure for AWS Lambda function"
     },
     ...additional
 ]
