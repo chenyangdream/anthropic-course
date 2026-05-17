@@ -662,10 +662,20 @@ def run_prompt(prompt_inputs):
     prompt = f"""
     What should this person eat?
 
+    <athlete_information>
     - Height: {prompt_inputs["height"]}
     - Weight: {prompt_inputs["weight"]}
     - Goal: {prompt_inputs["goal"]}
     - Diatery Restrictions: {prompt_inputs["restrictions"]}
+    </athlete_information>
+
+    Guidelines:
+    1. Include accurate daily calorie amount
+    2. Show protein, fat, and carb amounts  
+    3. Specify when to eat each meal
+    4. Use only foods that fit restrictions
+    5. List all portion sizes in grams
+    6. Keep budget-friendly if mentioned
     """
 
     messages = []
